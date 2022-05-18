@@ -10,6 +10,6 @@ from itemadapter import ItemAdapter
 
 class PlacesToVisitPipeline:
     def process_item(self, item, spider):
-        if item["about"] : 
-            item["about"] = item["about"].replace('"',"'")
+        if item["about"]:
+            item["about"] = item["about"].replace('"', "'")
         return item

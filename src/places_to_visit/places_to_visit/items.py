@@ -13,7 +13,7 @@ class PlacesToVisitItem(Item):
     suggested_duration = Field()
     breadcrumbs = Field()
     ranking_of_place = Field()
-    place_category = Field() 
+    place_category = Field()
     area = Field()
     nearby_restraunts = Field()
     nearby_attractions = Field()
@@ -25,4 +25,3 @@ class PlacesToVisitItem(Item):
     poor_reviews_count = Field()
     terrible_reviews_count = Field()
     page_url = Field()
-    
