@@ -21,3 +21,16 @@
    9. The Area : Comprises of address to the location / Locality
    10. Nmber Best Nearby Restraunts
    11. Number of best Nearby Attractions
+
+
+### To run Scraping scripts
+1. For North American Places 
+   ```bash
+   cd src/places_to_visit/
+   scrapy crawl places_to_visit -a country=northamerica -o northamerica.json
+   ```
+2. For African Places
+   ```bash
+   cd src/places_to_visit/
+   scrapy crawl places_to_visit -a country=africa -o africa.json
+   ```
