@@ -28,7 +28,10 @@ class PlacesToVisit(scrapy.Spider):
             card_link = card.css("div.eXwvx > div > a::attr(href)").get()
             yield Request(
                 url = f"{self.base_url}{card_link}",
-                callback = self.place_page
+                callback = self.place_page,
+                meta={
+                    "page_url" : f"{self.base_url}{card_link}"
+                }
             )
         
         next_page_link = response.css("a[aria-label='Next page']::attr(href)").get()
@@ -36,9 +39,6 @@ class PlacesToVisit(scrapy.Spider):
             yield Request(
                 url = f"{self.base_url}{next_page_link}",
                 callback= self.parse,
-                meta={
-                    "page_url" : f"{self.base_url}{next_page_link}"
-                }
             )
 
     def place_page(self, response) : 
@@ -68,5 +68,5 @@ class PlacesToVisit(scrapy.Spider):
         item["terrible_reviews_count"] = response.css("section div[id='tab-data-qa-reviews-0'] > div > :nth-child(3) > span > div > :nth-child(2) > div > :nth-child(5) > :nth-child(2) > div div div::text").get()
 
         item["page_url"] = response.meta["page_url"]
-        
+
         yield item
