@@ -114,7 +114,7 @@ class PlacesToVisit(scrapy.Spider):
             ).get()
 
         else:
-            item["place"] = response.css("h1[id='HEADING']::text").get()
+            item["place_name"] = response.css("h1[id='HEADING']::text").get()
             item["about"] = response.css(
                 "div[data-component='@ta/attractions.company-profile'] > :nth-child(1) > :nth-child(1) > :nth-child(3) span::text"
             ).get()

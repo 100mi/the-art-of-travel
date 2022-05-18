@@ -88,3 +88,5 @@ ITEM_PIPELINES = {
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 FEED_FORMAT = "json"
 FEED_EXPORT_ENCODING = "utf-8"
+LOG_ENABLED = True
+LOG_LEVEL = 'INFO'
