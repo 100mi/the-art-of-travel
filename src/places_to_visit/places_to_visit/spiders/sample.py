@@ -4,6 +4,8 @@ from scrapy.crawler import CrawlerProcess
 from scrapy.shell import inspect_response
 from pprint import pprint
 from ..items import PlacesToVisitItem
+import pandas as pd
+import json
 
 class PlacesToVisit(scrapy.Spider):
     name = "places_to_visit"
@@ -14,14 +16,34 @@ class PlacesToVisit(scrapy.Spider):
         "northamerica":"https://www.tripadvisor.in/Attractions-g19-Activities-a_allAttractions.true-oa184140-North_America.html"
     }
 
-    def __init__(self, country, *args, **kwargs):
+    def __init__(self, country, from_err=False,*args, **kwargs):
         self.country  = country
+        self.error = open("/home/somi/ampba/dcpp/the-art-of-travel/src/places_to_visit/err.json", "a+")
+        self.from_err = from_err
 
     def start_requests(self):
-        yield Request(
-            self.country_urls[self.country],
-            callback=self.parse,
-        )
+        if not self.from_err:
+            page_urls = (f"https://www.tripadvisor.in/Attractions-g19-Activities-a_allAttractions.true-oa{num}-North_America.html" for num in range(184140,337450,30))
+            for page_url in page_urls: 
+                yield Request(
+                    page_url,
+                    callback=self.parse,
+                    meta= {"page_url": page_url},
+                    errback=self.err_handler,
+                )
+        else :
+            errors = []
+            with open('/home/somi/ampba/dcpp/the-art-of-travel/src/places_to_visit/err_parse.json') as f:
+                for line in f:
+                    errors.append(json.loads(line))
+            
+            for error in errors : 
+                yield Request(
+                    error["url"],
+                    callback=self.parse,
+                    meta= {"page_url": error["url"]},
+                    errback=self.err_handler,
+                )
 
     def parse(self, response):
 
@@ -47,14 +69,15 @@ class PlacesToVisit(scrapy.Spider):
                 url=f"{self.base_url}{card_link}",
                 callback=self.place_page,
                 meta={"page_url": f"{self.base_url}{card_link}"},
+                errback=self.err_handler,
             )
 
-        next_page_link = response.css("a[aria-label='Next page']::attr(href)").get()
-        if next_page_link:
-            yield Request(
-                url=f"{self.base_url}{next_page_link}",
-                callback=self.parse,
-            )
+        # next_page_link = response.css("a[aria-label='Next page']::attr(href)").get()
+        # if next_page_link:
+        #     yield Request(
+        #         url=f"{self.base_url}{next_page_link}",
+        #         callback=self.parse,
+        #     )
 
     def place_page(self, response):
         # inspect_response(response, self)
@@ -164,3 +187,11 @@ class PlacesToVisit(scrapy.Spider):
         item["page_url"] = response.meta["page_url"]
 
         yield item
+
+    def err_handler(self, failure):
+        err_msg = {
+            "url" : failure.request.url,
+            "msg" : self.logger.error(repr(failure))
+        }
+        self.error.write(json.dumps(err_msg) + "\n")
+        self.logger.error('Failure type: %s, URL: %s', failure.type,failure.request.url)
